@@ -30,10 +30,11 @@ int main(void)
 		pid_t pid[line->ncommands];
 
 
-
+		
 		// CREAR LOS PIPES
+		int array_pipes[line->ncommands - 1][2];
 		if(line->ncommands>1){
-			int array_pipes[line->ncommands - 1][2];
+			
 
 			// INICIALIZAR LOS PIPES
 			for (int i = 0; i < line->ncommands - 1; i++){
@@ -63,7 +64,7 @@ int main(void)
 					}
 					if(line->ncommands>1){
 						close(array_pipes[i][0]); //CERRAR EL PRIMER PIPE PARA LECTURA
-						dup2(array_pipes[i][1], STDIN_FILENO);	//REDIRIGIR LA SALIDA ESTANDAR A LA POSICION DE ESCRITURA DEL PRIMER PIPE
+						dup2(array_pipes[i][1], STDOUT_FILENO);	//REDIRIGIR LA SALIDA ESTANDAR A LA POSICION DE ESCRITURA DEL PRIMER PIPE
 					}
 				}else if(i==line->ncommands-1){
 					if (line->redirect_output != NULL) // STDOUT
@@ -77,9 +78,14 @@ int main(void)
 						dup2(fderr, STDERR_FILENO);
 					}
 
-					close(array_pipes[i][1]);	//CERRAR EL ULTIMO PIPE PARA ESCRITURA
-				}else{
+					close(array_pipes[i-1][1]);	//CERRAR EL ULTIMO PIPE PARA ESCRITURA
+					dup2(array_pipes[i-1][0], STDIN_FILENO);
 
+				}else{
+					close(array_pipes[i-1][1]);
+					close(array_pipes[i][0]);
+					dup2(array_pipes[i-1][0], STDIN_FILENO);
+					dup2(array_pipes[i][1], STDOUT_FILENO);
 				}
 
 
