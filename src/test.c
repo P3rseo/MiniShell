@@ -25,11 +25,16 @@ int main(void)
 			printf("comando a ejecutarse en background\n");
 		}
 
+		// Crear variable con el numero de comandos. (Linea 47)
 		int ncmds = line->ncommands;
+		// Crear tantos PIDs como comandos haya.
 		pid_t pid[ncmds];
 
+		// Crear el numero de pipes necesarios.
 		int npipes = ncmds - 1;
 		int pipes[npipes][2];
+
+		// Abrimos los pipes con un bucle.
 		for (int i = 0; i < npipes; i++)
 		{
 			if (pipe(pipes[i]) < 0)
@@ -41,7 +46,7 @@ int main(void)
 
 		for (int i = 0; i < ncmds; i++) // Si usamos line->ncommands da error por que comparamos un int con un puntero.
 		{
-			pid[i] = fork();
+			pid[i] = fork(); // Creamos proceso
 			if (pid[i] < 0)
 			{
 				perror("fork");
@@ -49,9 +54,9 @@ int main(void)
 			}
 			else if (pid[i] == 0)
 			{
-				if (i == 0 && line->redirect_input != NULL)
+				if (i == 0 && line->redirect_input != NULL) // Primer comando, con redireccion de entrada
 				{
-					int fdin = open(line->redirect_input, O_RDONLY);
+					int fdin = open(line->redirect_input, O_RDONLY); 
 					if (fdin < 0 || dup2(fdin, STDIN_FILENO) < 0)
 					{
 						perror("redirect input");
@@ -60,7 +65,7 @@ int main(void)
 					close(fdin);
 				}
 
-				if (i == ncmds - 1)
+				if (i == ncmds - 1) // Ultimo comando, con redireccion de salida y redireccion de error
 				{
 					if (line->redirect_output != NULL)
 					{
@@ -101,7 +106,7 @@ int main(void)
 					}
 				}
 
-				for (int j = 0; j < npipes; j++)
+				for (int j = 0; j < npipes; j++) // Cerrar pipes que no se van a usar.
 				{
 					close(pipes[j][0]);
 					close(pipes[j][1]);
@@ -113,7 +118,7 @@ int main(void)
 			}
 		}
 
-		for (int i = 0; i < npipes; i++)
+		for (int i = 0; i < npipes; i++) // Cerrar los pipes ya usados.
 		{
 			close(pipes[i][0]);
 			close(pipes[i][1]);
