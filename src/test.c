@@ -10,7 +10,7 @@ int main(void)
 	char buf[1024];
 	tline *line;
 
-	printf("msh>");
+	printf("msh> ");
 	while (fgets(buf, 1024, stdin))
 	{
 
@@ -39,7 +39,7 @@ int main(void)
 			}
 		}
 
-		for (int i = 0; i < ncmds; i++)
+		for (int i = 0; i < ncmds; i++) // Si usamos line->ncommands da error por que comparamos un int con un puntero.
 		{
 			pid[i] = fork();
 			if (pid[i] < 0)
@@ -124,7 +124,7 @@ int main(void)
 			waitpid(pid[i], NULL, 0);
 		}
 
-		printf("msh>");
+		printf("msh> ");
 	}
 	return 0;
 }
