@@ -9,7 +9,7 @@
 
 int main(void)
 {
-    signal(SIGCHLD, SIG_IGN);
+
 
     char buf[1024];
     tline *line;
@@ -116,6 +116,9 @@ int main(void)
                 _exit(EXIT_FAILURE);
             }
         }
+
+        signal(SIGCHLD, SIG_IGN);
+        signal(SIGQUIT, SIG_IGN);
 
         for (int i = 0; i < npipes; i++) // Cerrar los pipes ya usados.
         {
